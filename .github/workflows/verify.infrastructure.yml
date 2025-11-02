@@ -1,0 +1,45 @@
+name: Verify Infrastructure
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh
+
+      - name: Set up Docker (already included)
+        run: docker --version
+
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y python3-pip
+          pip3 install awscli --upgrade --user
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          aws --version
+
+      - name: Start infrastructure
+        run: docker compose -f docker-compose.yml up -d
+
+      - name: Verify services
+        run: ./scripts/verify-services.sh
+
+      - name: Dump logs on failure
+        if: failure()
+        run: |
+          echo "Dumping docker logs for debugging..."
+          docker ps -a
+          docker compose logs --tail=100
+
+      - name: Stop all containers
+        if: always()
+        run: docker compose down -v
