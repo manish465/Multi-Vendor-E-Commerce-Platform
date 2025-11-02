@@ -14,6 +14,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install docker-compose v1
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y docker-compose
+
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
