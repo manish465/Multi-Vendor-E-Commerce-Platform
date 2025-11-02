@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y docker-compose curl jq awscli postgresql-client
+          sudo apt-get install -y docker compose curl jq awscli postgresql-client
 
       - name: Make scripts executable
         run: |
