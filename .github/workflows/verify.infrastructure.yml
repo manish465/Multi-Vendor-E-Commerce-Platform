@@ -1,4 +1,4 @@
-name: Verify E-Commerce Platform Services
+name: Verify Infrastructure
 
 on:
   pull_request:
@@ -13,11 +13,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh
+
       - name: Set up Docker (already included)
         run: docker --version
-
-      - name: Check Docker Compose availability
-        run: docker compose version
 
       - name: Install AWS CLI
         run: |
@@ -30,16 +30,16 @@ jobs:
       - name: Start infrastructure
         run: docker compose -f docker-compose.yml up -d
 
-      - name: Wait for services
+      - name: Verify services
         run: ./scripts/verify-services.sh
 
-      - name: Show logs on failure
+      - name: Dump logs on failure
         if: failure()
         run: |
           echo "Dumping docker logs for debugging..."
           docker ps -a
           docker compose logs --tail=100
 
-      - name: Stop and clean up
+      - name: Stop all containers
         if: always()
         run: docker compose down -v
